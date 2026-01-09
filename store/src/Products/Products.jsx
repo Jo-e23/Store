@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Sidebar from "../ADMIN/Sidebar";
 
 const Products = () => {
     const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ const Products = () => {
     };
 
     return (
-      
+        <Sidebar>
             <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-64 transition-all duration-300">
                 <div className="max-w-4xl mx-auto">
                     <header className="mb-10">
@@ -204,6 +205,7 @@ const Products = () => {
                     </form>
                 </div>
             </div>
+        </Sidebar>
     );
 };
 

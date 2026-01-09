@@ -6,6 +6,7 @@ const shopSchema = new mongoose.Schema({
     phone: { type: String, default: "" },
     gst: { type: String },
     orderid: { type: String },
-    items: { type: String }
+    items: { type: String },
+    image: { type: String }
 });
 module.exports = mongoose.model("Shop", shopSchema);

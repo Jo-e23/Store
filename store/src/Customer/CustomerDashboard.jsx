@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp } from "lucide-react";
 import CustomerSidebar from './CustomerSidebar';
 
 const CustomerDashboard = () => {
@@ -9,6 +10,53 @@ const CustomerDashboard = () => {
         address: "",
         items: ""
     });
+
+    const [products, setProducts] = useState([]);
+    const [expandedCategories, setExpandedCategories] = useState({});
+
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/products');
+            const data = await response.json();
+            setProducts(data);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const groupProductsByCategory = () => {
+        const groupedProducts = products.reduce((acc, product) => {
+            if (!acc[product.category]) {
+                acc[product.category] = [];
+            }
+            acc[product.category].push(product);
+            return acc;
+        }, {});
+        return groupedProducts;
+    };
+
+    const toggleCategory = (category) => {
+        setExpandedCategories(prev => ({
+            ...prev,
+            [category]: !prev[category]
+        }));
+    };
+
+    const addToOrder = (product) => {
+        setForm(prev => {
+            const newItemString = `${product.name} (Size: ${product.size})`;
+            const currentItems = prev.items ? prev.items : "";
+            return {
+                ...prev,
+                items: currentItems ? `${currentItems}, ${newItemString}` : newItemString
+            };
+        });
+        alert(`${product.name} added to order!`);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,19 +75,19 @@ const CustomerDashboard = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(form)
-            });
+            const response = await fetch('http://localhost:5000/api/order',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(form)
+                });
 
             const data = await response.json();
 
             if (response.ok) {
                 alert('Order placed successfully! Order ID: ' + data.orderId);
-                // Optional: Clear items after order
                 setForm(prev => ({ ...prev, items: "" }));
             } else {
                 alert('Failed to place order: ' + data.message);
@@ -109,18 +157,83 @@ const CustomerDashboard = () => {
                             placeholder="123 Main St, City"
                         />
                     </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="items" className="text-sm font-medium text-gray-700">Items to Order</label>
+                    <div className="mt-8">
+                        <label htmlFor="items" className="text-sm font-medium text-gray-700 block mb-2">Selected Items (Add from list or type)</label>
                         <textarea
                             id="items"
                             name="items"
                             value={form.items}
                             onChange={handleChange}
+                            rows="3"
                             required
-                            className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all min-h-[100px]"
-                            placeholder="List your items here (e.g., 2x Apple, 1x Milk)"
+                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm mb-4"
+                            placeholder="Select products below or type here..."
                         />
+                    </div>
+                    <div className="mt-2">
+                        <h3 className="text-xl font-bold mb-4 text-gray-800">Available Products</h3>
+                        <div className="space-y-4">
+                            {Object.entries(groupProductsByCategory()).map(([category, products]) => (
+                                <div key={category} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleCategory(category)}
+                                        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors text-left"
+                                    >
+                                        <span className="font-semibold text-gray-800 text-lg">{category} ({products.length})</span>
+                                        {expandedCategories[category] ? (
+                                            <ChevronUp className="h-5 w-5 text-gray-500" />
+                                        ) : (
+                                            <ChevronDown className="h-5 w-5 text-gray-500" />
+                                        )}
+                                    </button>
+
+                                    {expandedCategories[category] && (
+                                        <div className="border-t border-gray-100 bg-gray-50">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left text-sm text-gray-600">
+                                                    <thead className="bg-gray-100 text-xs uppercase font-semibold text-gray-500">
+                                                        <tr>
+                                                            <th className="px-6 py-3">Product Name</th>
+                                                            <th className="px-6 py-3">MRP</th>
+                                                            <th className="px-6 py-3">Size</th>
+                                                            <th className="px-6 py-3">Stock</th>
+                                                            <th className="px-6 py-3">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-200">
+                                                        {products.map((product) => (
+                                                            <tr key={product._id} className="hover:bg-white transition-colors">
+                                                                <td className="px-6 py-4 font-medium text-gray-900">{product.name}</td>
+                                                                <td className="px-6 py-4">₹{product.mrp}</td>
+                                                                <td className="px-6 py-4">{product.size}</td>
+                                                                <td className="px-6 py-4">
+                                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.quantity < 10
+                                                                        ? "bg-red-100 text-red-700"
+                                                                        : "bg-green-100 text-green-700"
+                                                                        }`}>
+                                                                        {product.quantity} units
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => addToOrder(product)}
+                                                                        className="bg-green-600 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-green-700 transition-colors"
+                                                                    >
+                                                                        Add
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <button

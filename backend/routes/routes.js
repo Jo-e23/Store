@@ -62,19 +62,31 @@ router.put("/admin", async (req, res) => {
 
 router.post("/shop", async (req, res) => {
     try {
-        const { name, phone, gst } = req.body;
+        const { name, phone, gst, image } = req.body;
         let shop = await Shop.findOne();
+
+        // Find default admin to assign as owner if creating new shop
+        const admin = await Admin.findOne();
+        if (!admin) {
+            return res.status(404).json({ message: "No admin found to link shop to." });
+        }
 
         if (!shop) {
             shop = new Shop({
+                userId: admin._id,
                 name: name || "My Shop",
                 phone: phone,
-                gst: gst
+                gst: gst,
+                image: image
             });
         } else {
             shop.name = name;
             shop.phone = phone;
             shop.gst = gst;
+            shop.image = image;
+            if (!shop.userId) {
+                shop.userId = admin._id;
+            }
         }
 
         const updatedShop = await shop.save();
@@ -89,10 +101,19 @@ router.get("/shop", async (req, res) => {
     try {
         let shop = await Shop.findOne();
         if (!shop) {
+            // Find default admin
+            const admin = await Admin.findOne();
+            if (!admin) {
+                // Should ideally create an admin too, or handle this case, but for now return empty
+                return res.json({ message: "No shop or admin found" });
+            }
+
             shop = new Shop({
+                userId: admin._id,
                 name: "My Shop",
                 phone: "",
-                gst: ""
+                gst: "",
+                image: ""
             });
             await shop.save();
         }

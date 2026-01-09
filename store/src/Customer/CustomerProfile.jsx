@@ -1,6 +1,6 @@
 import React, { useState , useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Store, Wallet, Info, LogOut } from 'lucide-react';
+
 import CustomerSidebar from './CustomerSidebar';
 
 const CustomerProfile = () => {
@@ -117,7 +117,7 @@ const CustomerProfile = () => {
     };
 
     const navItems = [
-        { id: 'profile', label: 'Profile Details', icon: User }
+        { id: 'profile', label: 'Profile Details'}
     ];
 
     const renderContent = () => {
@@ -186,9 +186,9 @@ const CustomerProfile = () => {
 
     return (
         <CustomerSidebar>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl animate-fade-in">
-                <aside className="w-full md:w-64 bg-transparent p-6 flex flex-col gap-6">
-                    <nav className="flex flex-col space-y-2">
+            <div className="bg-gray-100 grid grid-cols-2 rounded-xl shadow-sm border border-gray-100  max-w-full animate-fade-in">
+                <aside className="w-full  md:w-64 bg-transparent p-6 flex flex-col gap-6">
+                    <nav className="flex flex-col space-y-2 ">
                         {navItems.map((item) => (
                             <button
                                 key={item.id}
@@ -198,7 +198,7 @@ const CustomerProfile = () => {
                                     : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                             >
-                                <item.icon size={20} />
+                                
                                 {item.label}
                             </button>
                         ))}
@@ -208,7 +208,7 @@ const CustomerProfile = () => {
                                 onClick={() => handleLogout()}
                                 className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors w-full text-left"
                             >
-                                <LogOut size={20} />
+                            
                                 Logout
                             </button>
                         </div>

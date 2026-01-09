@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Store, Wallet, Info, LogOut } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -12,7 +12,7 @@ const AdminProfile = () => {
     });
     const [shopDetails, setShopDetails] = useState({
         storename: '',
-        phone: '',  
+        phone: '',
         gst: '',
         otp: '',
         otpExpiry: ''
@@ -42,6 +42,7 @@ const AdminProfile = () => {
                         storename: shopData.name,
                         phone: shopData.phone,
                         gst: shopData.gst,
+                        image: shopData.image
                         // otp: shopData.otp,
                         // otpExpiry: shopData.otpExpiry
                     });
@@ -58,7 +59,7 @@ const AdminProfile = () => {
     const handleLogout = () => {
         navigate('/');
         alert('Logout successful');
-        message.success('Logout successful');
+
     }
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -69,13 +70,25 @@ const AdminProfile = () => {
         setIsEditing(true);
     };
 
-   
-    const handleShopChange = (e) => {
-        const { name, value } = e.target;
-        setShopDetails(prev => ({
-            ...prev,
-            [name]: value
-        }));
+
+    const handleShopChange = async (e) => {
+        const { name, value, files } = e.target;
+        if (name === 'image' && files && files[0]) {
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setShopDetails(prev => ({
+                    ...prev,
+                    image: reader.result
+                }));
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setShopDetails(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
         setIsEditing(true);
     };
     const handleShopSave = async (e) => {
@@ -86,7 +99,8 @@ const AdminProfile = () => {
                 body: JSON.stringify({
                     name: shopDetails.storename,
                     phone: shopDetails.phone,
-                    gst: shopDetails.gst
+                    gst: shopDetails.gst,
+                    image: shopDetails.image
                 }),
                 headers: {
                     'Content-Type': 'application/json'
@@ -97,7 +111,8 @@ const AdminProfile = () => {
                 setIsEditing(false);
                 alert('Changes saved successfully');
             } else {
-                alert('Failed to save changes');
+                const errorData = await response.json();
+                alert('Failed to save changes: ' + (errorData.message || response.statusText));
             }
         } catch (error) {
             console.error('Error saving shop details:', error);
@@ -228,6 +243,18 @@ const AdminProfile = () => {
                                     onChange={handleShopChange}
                                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all bg-white text-gray-900" />
                             </div>
+                            <div className="relative" id="img">
+                                <label className="text sm font-semibold text-gray-900 block">Image</label>
+                                <input
+                                    type="file"
+                                    name="image"
+                                    accept="image/*"
+                                    placeholder='Upload Image'
+                                    onChange={handleShopChange}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-all bg-white text-gray-900" />
+                                {shopDetails.image && <img src={shopDetails.image} alt="Preview" className="h-20 w-20 object-cover mt-2 rounded-md" />}
+                            </div>
+
                             <button
                                 type="submit"
                                 disabled={!isEditing}
@@ -238,8 +265,8 @@ const AdminProfile = () => {
                             >
                                 Save Changes
                             </button>
-                        </form>
-                    </div>
+                        </form >
+                    </div >
                 );
             case 'wallet':
                 return (
@@ -260,7 +287,7 @@ const AdminProfile = () => {
     };
 
     return (
-        <Sidebar>
+        <Sidebar shopImage={shopDetails.image}>
             <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans md:ml-64">
                 <aside className="w-full md:w-64 bg-transparent p-6 flex flex-col gap-6">
                     <nav className="flex flex-col space-y-2">
