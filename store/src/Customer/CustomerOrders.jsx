@@ -1,105 +1,39 @@
-import React, { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
-
-const AdminOrders = () => {
+import { useEffect, useState } from "react";
+import CustomerSidebar from "./CustomerSidebar";
+const CustomerOrders = () => {
     const [orders, setOrders] = useState([]);
-    const [activeTab, setActiveTab] = useState('Pending');
     const [loading, setLoading] = useState(true);
-
-    const fetchOrders = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/api/orders');
-            const data = await response.json();
-            if (data.orders) {
-                setOrders(data.orders);
-            }
-        } catch (error) {
-            console.error("Error fetching orders:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const [productId, setProductId] = useState('');
-
-    const fetchProduct = async (productId) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/products/${productId}`);
-            const data = await response.json();
-            if (data.product) {
-                setProductId(data.product);
-            }
-        } catch (error) {
-            console.error("Error fetching product:", error);
-        }
-    };
-    const handleStatusUpdate = async (orderId, newStatus) => {
-        try {
-            const response = await fetch('http://localhost:5000/api/order/status', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ orderId, status: newStatus }),
-            });
-            const data = await response.json();
-            if (response.ok) {
-                // Refresh orders to reflect changes
-                fetchOrders();
-            } else {
-                alert("Failed to update status: " + data.message);
-            }
-        } catch (error) {
-            console.error("Error updating status:", error);
-            alert("Error updating status");
-        }
-    };
+    const tabs = ["All", "Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+    const [activeTab, setActiveTab] = useState("All");
 
     const getFilteredOrders = () => {
-        switch (activeTab) {
-            case 'Pending':
-                return orders.filter(order => order.status === 'Pending');
-            case 'Processing':
-                return orders.filter(order => order.status === 'Processing');
-            case 'Packed':
-                return orders.filter(order => order.status === 'Packed');
-            case 'Completed':
-                return orders.filter(order => order.status === 'Completed');
-            case 'Cancelled':
-                return orders.filter(order => order.status === 'Cancelled');
-            default:
-                return orders;
+        if (activeTab === "All") {
+            return orders;
         }
+        return orders.filter(order => order.status === activeTab);
     };
-
-    const tabs = ['Pending', 'Processing', 'Packed', 'Completed', 'Cancelled'];
-
-    const getNextStatus = (currentStatus) => {
-        if (currentStatus === 'Pending') return 'Processing';
-        if (currentStatus === 'Processing') return 'Packed';
-        if (currentStatus === 'Packed') return 'Completed';
-        return null;
-    };
-
-    const StatusBadge = ({ status }) => {
-        return (
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status || "bg-gray-100 text-gray-800"}`}>
-                {status}
-            </span>
-        );
-    };
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const response = await axios.get("http://localhost:5000/api/orders");
+                setOrders(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+                setLoading(false);
+            }
+        };
+        fetchOrders();
+    }, []);
+    
 
     return (
-        <Sidebar>
-            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-64 transition-all duration-300">
+        <CustomerSidebar>
+        <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-6 transition-all duration-300">
                 <div className="max-w-7xl mx-auto">
                     <header className="mb-10">
                         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Orders</h1>
-                        <p className="text-lg text-gray-500 mt-2">Manage and track all customer orders.</p>
+                       
                     </header>
                     <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200">
                         {tabs.map((tab) => (
@@ -233,8 +167,8 @@ const AdminOrders = () => {
                     </div>
                 </div>
             </div>
-        </Sidebar>
-    );
-};
+        </CustomerSidebar>
+    )
+}
 
-export default AdminOrders;
+export default CustomerOrders

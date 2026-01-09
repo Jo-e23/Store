@@ -8,7 +8,7 @@ const CustomerDashboard = () => {
         email: "",
         phone: "",
         address: "",
-        items: ""
+        items: []
     });
 
     const [products, setProducts] = useState([]);
@@ -26,6 +26,31 @@ const CustomerDashboard = () => {
 
     useEffect(() => {
         fetchProducts();
+    }, []);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const email = localStorage.getItem("userEmail");
+                if (!email) return;
+
+                const userRes = await fetch(`http://localhost:5000/api/user/${email}`);
+                if (!userRes.ok) throw new Error("Failed to fetch user data");
+
+                const userData = await userRes.json();
+                setForm(prev => ({
+                    ...prev,
+                    name: userData.name,
+                    email: userData.email,
+                    phone: userData.phone,
+                    address: userData.address || ""
+                }));
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchUserData();
     }, []);
 
     const groupProductsByCategory = () => {
@@ -47,15 +72,24 @@ const CustomerDashboard = () => {
     };
 
     const addToOrder = (product) => {
-        setForm(prev => {
-            const newItemString = `${product.name} (Size: ${product.size})`;
-            const currentItems = prev.items ? prev.items : "";
-            return {
-                ...prev,
-                items: currentItems ? `${currentItems}, ${newItemString}` : newItemString
-            };
-        });
+        setForm(prev => ({
+            ...prev,
+            items: [...prev.items, {
+                productId: product.productId,
+                name: product.name,
+                size: product.size,
+                mrp: product.mrp,
+                quantity: 1
+            }]
+        }));
         alert(`${product.name} added to order!`);
+    };
+
+    const removeItem = (index) => {
+        setForm(prev => ({
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index)
+        }));
     };
 
     const handleChange = (e) => {
@@ -69,8 +103,8 @@ const CustomerDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!form.email || !form.items) {
-            alert("Email and Items are required!");
+        if (!form.email || form.items.length === 0) {
+            alert("Email and at least one item are required!");
             return;
         }
 
@@ -88,7 +122,7 @@ const CustomerDashboard = () => {
 
             if (response.ok) {
                 alert('Order placed successfully! Order ID: ' + data.orderId);
-                setForm(prev => ({ ...prev, items: "" }));
+                setForm(prev => ({ ...prev, items: [] }));
             } else {
                 alert('Failed to place order: ' + data.message);
             }
@@ -158,17 +192,28 @@ const CustomerDashboard = () => {
                         />
                     </div>
                     <div className="mt-8">
-                        <label htmlFor="items" className="text-sm font-medium text-gray-700 block mb-2">Selected Items (Add from list or type)</label>
-                        <textarea
-                            id="items"
-                            name="items"
-                            value={form.items}
-                            onChange={handleChange}
-                            rows="3"
-                            required
-                            className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono text-sm mb-4"
-                            placeholder="Select products below or type here..."
-                        />
+                        <label className="text-sm font-medium text-gray-700 block mb-2">Selected Items</label>
+                        {form.items.length === 0 ? (
+                            <p className="text-gray-400 text-sm italic">No items selected yet. Add items from below.</p>
+                        ) : (
+                            <div className="space-y-2 mb-4">
+                                {form.items.map((item, index) => (
+                                    <div key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                        <div>
+                                            <span className="font-medium text-gray-800">{item.name}</span>
+                                            <span className="text-gray-500 text-sm ml-2">({item.size})</span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeItem(index)}
+                                            className="text-red-500 hover:text-red-700 text-sm font-semibold"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="mt-2">
                         <h3 className="text-xl font-bold mb-4 text-gray-800">Available Products</h3>

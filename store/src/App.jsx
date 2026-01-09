@@ -11,23 +11,26 @@ import AdminProducts from "./ADMIN/AdminProducts";
 import CustomerSidebar from "./Customer/CustomerSidebar";
 import CustomerDashboard from "./Customer/CustomerDashboard";
 // import ServiceManDashboard from "./Basic/ServiceManDashboard";
+import CustomerOrders from "./Customer/CustomerOrders"; 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
     return (
         <Router>
             <Routes>
-               
-               
+
+
                 <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
                 {/* Dashboard Routes */}
                 <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<Products />} />
                 <Route path="/sidebar" element={<Sidebar />} />
                 {/*Customer Routes */}
                 <Route path="/customer-sidebar" element={<CustomerSidebar />} />
+                <Route path="/customer-orders" element={<CustomerOrders />} />
                 <Route path="/customer-profile" element={<CustomerProfile />} />
                 <Route path="/customer-dashboard" element={<CustomerDashboard />} />
                 {/*Admin Routes */}

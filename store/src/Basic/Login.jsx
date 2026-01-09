@@ -59,6 +59,7 @@ const Login = () => {
             .then((data) => {
                 if (data.message === "Login successful!") {
                     localStorage.setItem("token", data.token);
+                    localStorage.setItem("userEmail", email);
 
                     // Role based navigation
                     if (data.role === "admin") navigate("/adminprofile");

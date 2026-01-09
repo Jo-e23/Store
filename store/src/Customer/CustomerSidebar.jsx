@@ -35,6 +35,12 @@ const CustomerSidebar = ({ children }) => {
                         <User size={20} />
                         <span className="font-medium">Profile</span>
                     </button>
+                    <button
+                        onClick={() => navigate("/customer-orders")}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <Truck size={20} />
+                        <span className="font-medium">Orders</span>
+                    </button>
                     {/* Add more customer links here as needed */}
                 </nav>
             </aside>

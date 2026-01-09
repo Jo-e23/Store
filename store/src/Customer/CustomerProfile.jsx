@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CustomerSidebar from './CustomerSidebar';
@@ -17,29 +17,31 @@ const CustomerProfile = () => {
         otp: '',
         otpExpiry: ''
     })
-   
+
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        const fetchAdminData = async () => {
+        const fetchUserData = async () => {
             try {
-                const adminRes = await fetch('http://localhost:5000/api/admin');
+                const email = localStorage.getItem("userEmail");
+                if (!email) return;
+                const userRes = await fetch(`http://localhost:5000/api/user/${email}`);
 
-                const adminData = await adminRes.json();
+                const userData = await userRes.json();
                 setUserDetails({
-                    name: adminData.name,
-                    phone: adminData.phone,
-                    email: adminData.email
+                    name: userData.name,
+                    phone: userData.phone,
+                    email: userData.email
                 });
-              
-              
-                
+
+
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
 
-        fetchAdminData();
+        fetchUserData();
     }, []);
 
     const navigate = useNavigate();
@@ -57,7 +59,7 @@ const CustomerProfile = () => {
         setIsEditing(true);
     };
 
-   
+
     const handleShopChange = (e) => {
         const { name, value } = e.target;
         setShopDetails(prev => ({
@@ -66,36 +68,37 @@ const CustomerProfile = () => {
         }));
         setIsEditing(true);
     };
-    const handleShopSave = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('http://localhost:5000/api/shop', {
-                method: 'POST',
-                body: JSON.stringify({
-                    name: shopDetails.storename,
-                    phone: shopDetails.phone,
-                    gst: shopDetails.gst
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            if (response.ok) {
-                console.log('Saving changes:', shopDetails);
-                setIsEditing(false);
-                alert('Changes saved successfully');
-            } else {
-                alert('Failed to save changes');
-            }
-        } catch (error) {
-            console.error('Error saving shop details:', error);
-            alert('Error saving changes');
-        }
-    }
+    // const handleShopSave = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const response = await fetch('http://localhost:5000/api/shop', {
+    //             method: 'POST',
+    //             body: JSON.stringify({
+    //                 name: shopDetails.storename,
+    //                 phone: shopDetails.phone,
+    //                 gst: shopDetails.gst
+    //             }),
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         })
+    //         if (response.ok) {
+    //             console.log('Saving changes:', shopDetails);
+    //             setIsEditing(false);
+    //             alert('Changes saved successfully');
+    //         } else {
+    //             alert('Failed to save changes');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error saving shop details:', error);
+    //         alert('Error saving changes');
+    //     }
+    // }
     const handleSave = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/admin', {
+            const email = localStorage.getItem("userEmail");
+            const response = await fetch(`http://localhost:5000/api/user/${email}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -117,7 +120,7 @@ const CustomerProfile = () => {
     };
 
     const navItems = [
-        { id: 'profile', label: 'Profile Details'}
+        { id: 'profile', label: 'Profile Details' }
     ];
 
     const renderContent = () => {
@@ -178,7 +181,7 @@ const CustomerProfile = () => {
                         </form>
                     </div>
                 );
- 
+
             default:
                 return null;
         }
@@ -198,7 +201,7 @@ const CustomerProfile = () => {
                                     : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                             >
-                                
+
                                 {item.label}
                             </button>
                         ))}
@@ -208,7 +211,7 @@ const CustomerProfile = () => {
                                 onClick={() => handleLogout()}
                                 className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors w-full text-left"
                             >
-                            
+
                                 Logout
                             </button>
                         </div>
