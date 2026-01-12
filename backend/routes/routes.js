@@ -15,14 +15,90 @@ router.get("/products", async (req, res) => {
     }
 });
 
+
 // Add new product
 router.post("/product", async (req, res) => {
+    const productId = "PROD-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
     try {
-        const product = new Product(req.body);
+        const product = new Product({ ...req.body, productId });
         const savedProduct = await product.save();
         res.status(201).json(savedProduct);
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+});
+
+// Get Single Product by ID
+router.get("/products/:id", async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update Product
+router.put("/products/:id", async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+        res.json(updatedProduct);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+// Delete Product
+router.delete("/products/:id", async (req, res) => {
+    try {
+        const product = await Product.findByIdAndDelete(req.params.id);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+        res.json({ message: "Product deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get User by Email
+router.get("/user/:email", async (req, res) => {
+    try {
+        const user = await Admin.findOne({ email: req.params.email });
+        if (!user) return res.status(404).json({ message: "User not found" });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update User Profile by Email
+router.put("/user/:email", async (req, res) => {
+    try {
+        const { name, phone, email: newEmail } = req.body;
+        // Find user by the email in the URL param
+        const user = await Admin.findOne({ email: req.params.email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        user.name = name;
+        user.phone = phone;
+        // If updating email, check uniqueness (simplified here, assuming basic update)
+        if (newEmail && newEmail !== user.email) {
+            const exists = await Admin.findOne({ email: newEmail });
+            if (exists) return res.status(400).json({ message: "Email already in use" });
+            user.email = newEmail;
+        }
+
+        const updatedUser = await user.save();
+        res.json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 
