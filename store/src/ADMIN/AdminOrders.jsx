@@ -69,15 +69,15 @@ const AdminOrders = () => {
                 return orders.filter(order => order.status === 'Packed');
             case 'Completed':
                 return orders.filter(order => order.status === 'Completed');
-            case 'Cancelled':
-                return orders.filter(order => order.status === 'Cancelled');
+            // case 'Cancelled':
+            //     return orders.filter(order => order.status === 'Cancelled');
             default:
                 return orders;
         }
     };
 
-    const tabs = ['Pending', 'Processing', 'Packed', 'Completed', 'Cancelled'];
-
+    const tabs = ['Pending', 'Processing', 'Packed', 'Completed'];//,cancelled
+    
     const getNextStatus = (currentStatus) => {
         if (currentStatus === 'Pending') return 'Processing';
         if (currentStatus === 'Processing') return 'Packed';

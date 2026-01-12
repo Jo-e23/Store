@@ -121,9 +121,9 @@ const CustomerProfile = () => {
         switch (activeTab) {
             case 'profile':
                 return (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-xl animate-fade-in">
                         <div className="mb-8">
-                            <h2 className="text-xl font-bold text-gray-900">Profile Details</h2>
+                            <h2 className="text-xl font-bold  text-gray-900">Profile Details</h2>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSave}>
