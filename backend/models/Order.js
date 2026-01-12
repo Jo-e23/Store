@@ -7,6 +7,10 @@ const orderSchema = new mongoose.Schema({
         ref: 'Admin',
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    },
     items: {
         type: mongoose.Schema.Types.Mixed,
         required: true

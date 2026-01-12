@@ -142,6 +142,8 @@ const AdminOrders = () => {
                                             <th className="p-5 border-b border-gray-100">Order ID</th>
                                             <th className="p-5 border-b border-gray-100">Customer Info</th>
                                             <th className="p-5 border-b border-gray-100">Items</th>
+                                            <th className="p-5 border-b border-gray-100">Qty</th>
+                                            <th className="p-5 border-b border-gray-100">Total</th>
                                             <th className="p-5 border-b border-gray-100">Items Id</th>
                                             <th className="p-5 border-b border-gray-100">Date</th>
                                             <th className="p-5 border-b border-gray-100">Status</th>
@@ -167,6 +169,34 @@ const AdminOrders = () => {
                                                             order.items.map((item, i) => (
                                                                 <div key={i} className="mb-1">
                                                                     {item.name} <span className="text-xs text-gray-400">({item.size})</span>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            // Legacy support for string items
+                                                            order.items
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-5 max-w-xs">
+                                                    <div className="text-gray-600 text-sm">
+                                                        {Array.isArray(order.items) ? (
+                                                            order.items.map((item, i) => (
+                                                                <div key={i} className="mb-1">
+                                                                    {item.quantity}
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            // Legacy support for string items
+                                                            order.items
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-5 max-w-xs">
+                                                    <div className="text-gray-600 text-sm">
+                                                        {Array.isArray(order.items) ? (
+                                                            order.items.map((item, i) => (
+                                                                <div key={i} className="mb-1">
+                                                                    {order.items.reduce((total, item) => total + item.quantity * item.mrp, 0)}
                                                                 </div>
                                                             ))
                                                         ) : (
@@ -215,7 +245,8 @@ const AdminOrders = () => {
                                                                     'Complete'}
                                                         </button>
                                                     )}
-                                                    {order.status !== 'Cancelled' && order.status !== 'Completed' && (
+
+                                                    {order.status !== 'Cancelled' && order.status !== 'Packed' && order.status !== 'Completed' && (
                                                         <button
                                                             onClick={() => handleStatusUpdate(order._id, 'Cancelled')}
                                                             className="px-4 py-2 bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95"

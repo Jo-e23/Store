@@ -74,7 +74,7 @@ router.get("/user/:email", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
+router.get
 // Update User Profile by Email
 router.put("/user/:email", async (req, res) => {
     try {
@@ -210,10 +210,40 @@ router.post("/order", async (req, res) => {
             return res.status(404).json({ message: "User not found. Please ensure the email is registered." });
         }
 
+        // Validate items are array
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: "Order must contain at least one item." });
+        }
+
+        // Check availability
+        for (const item of items) {
+            // Use productId as the lookup key
+            const product = await Product.findOne({ productId: item.productId });
+            if (!product) {
+                return res.status(404).json({ message: `Product not found: ${item.name || item.productId}` });
+            }
+            // item.quantity from cart, or default 1
+            const qtyNeeded = item.quantity || 1;
+            if (product.quantity < qtyNeeded) {
+                return res.status(400).json({ message: `Insufficient stock for ${product.name}. Available: ${product.quantity}` });
+            }
+        }
+
+        // Deduct stock
+        for (const item of items) {
+            const product = await Product.findOne({ productId: item.productId });
+            if (product) {
+                const qtyNeeded = item.quantity || 1;
+                product.quantity -= qtyNeeded;
+                await product.save();
+            }
+        }
+
         const orderId = "ORD-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
 
         const newOrder = new Order({
             userId: user._id,
+            email: email,
             items: items,
             customerName: name,
             customerPhone: phone,
@@ -236,6 +266,21 @@ router.post("/order", async (req, res) => {
 router.get("/orders", async (req, res) => {
     try {
         const orders = await Order.find().sort({ createdAt: -1 });
+        res.json({ orders });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching orders" });
+    }
+});
+
+router.get("/orders/:email", async (req, res) => {
+    try {
+        const { email } = req.params;
+        const user = await Admin.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found. Please ensure the email is registered." });
+        }
+        const orders = await Order.find({ userId: user._id }).sort({ createdAt: -1 });
         res.json({ orders });
     } catch (error) {
         console.error(error);

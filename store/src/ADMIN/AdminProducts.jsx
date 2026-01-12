@@ -66,6 +66,9 @@ const AdminProducts = () => {
         }
     };
 
+    const updatedProduct = { ...products, quantity: products.quantity - 1 }
+
+
     const toggleCategory = (category) => {
         setExpandedCategories(prev => ({
             ...prev,
@@ -92,6 +95,8 @@ const AdminProducts = () => {
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                                 <input
                                     type="text"
+                                    name="search"
+                                    id="search-products-input"
                                     placeholder="Search for products or categories"
                                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full md:w-80"
                                     value={searchTerm}
@@ -159,6 +164,7 @@ const AdminProducts = () => {
                                                                 <th className="px-6 py-3">MRP</th>
                                                                 <th className="px-6 py-3">Size</th>
                                                                 <th className="px-6 py-3">Stock</th>
+
                                                                 <th className="px-6 py-3">Actions</th>
                                                             </tr>
                                                         </thead>

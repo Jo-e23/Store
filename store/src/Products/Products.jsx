@@ -206,7 +206,7 @@ const Products = () => {
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 animate-fade-in">
                             <h2 className="text-xl font-bold text-gray-900 mb-6 border-l-4 border-purple-500 pl-3">Additional Information</h2>
                             <div className="space-y-6">
-                                <div className="hidden">
+                                <div>
                                     <label className="block  text-sm font-medium text-gray-700 mb-2">Description</label>
                                     <textarea
                                         name="description"

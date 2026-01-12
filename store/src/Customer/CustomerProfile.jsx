@@ -10,13 +10,7 @@ const CustomerProfile = () => {
         phone: '',
         email: ''
     });
-    const [shopDetails, setShopDetails] = useState({
-        storename: '',
-        phone: '',
-        gst: '',
-        otp: '',
-        otpExpiry: ''
-    })
+   
 
     const [isEditing, setIsEditing] = useState(false);
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import CustomerSidebar from "./CustomerSidebar";
+import axios from "axios";
 const CustomerOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [count,setCount]=useState(0)
     const tabs = ["All", "Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
     const [activeTab, setActiveTab] = useState("All");
-
+    const email = localStorage.getItem("userEmail");
     const getFilteredOrders = () => {
         if (activeTab === "All") {
             return orders;
@@ -14,9 +16,16 @@ const CustomerOrders = () => {
     };
     useEffect(() => {
         const fetchOrders = async () => {
+            if (!email) {
+                console.error("No email found in localStorage (looking for 'userEmail')");
+                setLoading(false);
+                return;
+            }
             try {
-                const response = await axios.get("http://localhost:5000/api/orders");
-                setOrders(response.data);
+                console.log("Fetching orders for:", email);
+                const response = await axios.get(`http://localhost:5000/api/orders/${email}`);
+                console.log("API Response:", response.data);
+                setOrders(response.data.orders || []);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching orders:", error);
@@ -24,16 +33,55 @@ const CustomerOrders = () => {
             }
         };
         fetchOrders();
-    }, []);
-    
+    }, [email]);
+
+
+    const handleStatusUpdate = async (orderId, newStatus) => {
+        try {
+            const response = await axios.put('http://localhost:5000/api/order/status', {
+                orderId,
+                status: newStatus
+            });
+
+            if (response.status === 200) {
+                // Refresh orders
+                const fetchOrders = async () => {
+                    try {
+                        const response = await axios.get(`http://localhost:5000/api/orders/${email}`);
+                        setOrders(response.data.orders || []);
+                    } catch (error) {
+                        console.error("Error fetching orders:", error);
+                    }
+                };
+                fetchOrders();
+            } else {
+                alert("Failed to update status");
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+            alert("Error updating status");
+        }
+    };
+
+    const StatusBadge = ({ status }) => {
+        return (
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status === 'Completed' ? "bg-green-100 text-green-800" :
+                status === 'Cancelled' ? "bg-red-100 text-red-800" :
+                    status === 'Processing' ? "bg-blue-100 text-blue-800" :
+                        "bg-gray-100 text-gray-800"
+                }`}>
+                {status}
+            </span>
+        );
+    };
 
     return (
         <CustomerSidebar>
-        <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-6 transition-all duration-300">
-                <div className="max-w-7xl mx-auto">
+            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-10 md:ml-0 transition-all duration-300">
+                <div className="min-w-0 mx-auto">
                     <header className="mb-10">
                         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Orders</h1>
-                       
+
                     </header>
                     <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200">
                         {tabs.map((tab) => (
@@ -76,7 +124,8 @@ const CustomerOrders = () => {
                                             <th className="p-5 border-b border-gray-100">Order ID</th>
                                             <th className="p-5 border-b border-gray-100">Customer Info</th>
                                             <th className="p-5 border-b border-gray-100">Items</th>
-                                            <th className="p-5 border-b border-gray-100">Items Id</th>
+                                            <th className="p-5 border-b border-gray-100">Items Id</th> 
+                                            <th className="p-5 border-b border-gray-100">Total</th>   
                                             <th className="p-5 border-b border-gray-100">Date</th>
                                             <th className="p-5 border-b border-gray-100">Status</th>
                                             <th className="p-5 border-b border-gray-100 text-right">Actions</th>
@@ -91,6 +140,7 @@ const CustomerOrders = () => {
                                                 <td className="p-5">
                                                     <div className="font-semibold text-gray-900 text-base">{order.customerName}</div>
                                                     <div className="text-gray-500 mt-0.5">{order.customerPhone}</div>
+                                                    <div className="text-gray-500 mt-0.5">{order.customerEmail}</div>
                                                     <div className="text-gray-400 text-xs mt-1 truncate max-w-[200px]" title={order.customerAddress}>
                                                         {order.customerAddress}
                                                     </div>
@@ -123,8 +173,10 @@ const CustomerOrders = () => {
                                                     </div>
                                                 </td>
                                                 <td className="p-5 whitespace-nowrap text-gray-500">
+                                                    {order.items.reduce((total, item) => total + item.quantity * item.mrp, 0)}
+                                                </td>
+                                                <td className="p-5 whitespace-nowrap text-gray-500">
                                                     {new Date(order.createdAt).toLocaleDateString(undefined, {
-                                                        // year: 'numeric',
                                                         month: 'short',
                                                         day: 'numeric'
                                                     })}
@@ -139,20 +191,11 @@ const CustomerOrders = () => {
                                                     <StatusBadge status={order.status} />
                                                 </td>
                                                 <td className="p-5 text-right space-x-2 whitespace-nowrap">
-                                                    {getNextStatus(order.status) && (
-                                                        <button
-                                                            onClick={() => handleStatusUpdate(order._id, getNextStatus(order.status))}
-                                                            className="px-4 py-2 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-all shadow-md hover:shadow-lg transform active:scale-95"
-                                                        >
-                                                            {getNextStatus(order.status) === 'Processing' ? 'Accept Order' :
-                                                                getNextStatus(order.status) === 'Packed' ? 'Mark Packed' :
-                                                                    'Complete'}
-                                                        </button>
-                                                    )}
                                                     {order.status !== 'Cancelled' && order.status !== 'Completed' && (
                                                         <button
                                                             onClick={() => handleStatusUpdate(order._id, 'Cancelled')}
-                                                            className="px-4 py-2 bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95"
+                                                            className="px-4 py-2 bg-white border border-gray-200 text-gray-600 text-xs font-semibold 
+                                                            rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95"
                                                         >
                                                             Cancel
                                                         </button>
