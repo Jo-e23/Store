@@ -91,6 +91,46 @@ const AdminProfile = () => {
         }
         setIsEditing(true);
     };
+    
+    const [orders, setOrders] = useState([]);
+    const [totalRevenue, setTotalRevenue] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+   
+    const fetchOrder = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://localhost:5000/api/orders');
+            if (!response.ok) 
+                throw new Error('Failed to fetch orders');
+            const data = await response.json();
+            const ordersData = data.orders || [];
+
+            setOrders(ordersData);
+
+
+            const revenue = ordersData.reduce((grandTotal, order) => {
+                if (order.status === 'Cancelled') return grandTotal;
+
+                const orderTotal = Array.isArray(order.items)
+                    ? order.items.reduce((sum, item) => sum + ((item.quantity || 1) * (item.mrp || 0)), 0)
+                    : 0;
+                return grandTotal + orderTotal;
+            }, 0);
+ 
+            setTotalRevenue(revenue);
+
+
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
+        fetchOrder();
+    }, []);
+    
     const handleShopSave = async (e) => {
         e.preventDefault();
         try {
@@ -153,9 +193,9 @@ const AdminProfile = () => {
         switch (activeTab) {
             case 'profile':
                 return (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-sm  border border-gray-100 p-8 max-w-2xl animate-fade-in">
                         <div className="mb-8">
-                            <h2 className="text-xl font-bold text-gray-900">Profile Details</h2>
+                            <h2 className="text-xl font-bold hover:bg-green-50 text-gray-900">Profile Details</h2>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSave}>
@@ -275,7 +315,7 @@ const AdminProfile = () => {
                         <div className="bg-green-50 border border-green-100 rounded-lg p-6">
                             <p className="text-sm text-green-600 font-medium mb-1">Current Balance</p>
                             <h3 className="text-3xl font-bold text-gray-900">
-                                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(walletBalance)}
+                                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalRevenue)}
                             </h3>
                         </div>
                     </div>

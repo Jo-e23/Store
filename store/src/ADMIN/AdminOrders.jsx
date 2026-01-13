@@ -24,19 +24,19 @@ const AdminOrders = () => {
         fetchOrders();
     }, []);
 
-    const [productId, setProductId] = useState('');
+    // const [productId, setProductId] = useState('');
 
-    const fetchProduct = async (productId) => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/products/${productId}`);
-            const data = await response.json();
-            if (data.product) {
-                setProductId(data.product);
-            }
-        } catch (error) {
-            console.error("Error fetching product:", error);
-        }
-    };
+    // const fetchProduct = async (productId) => {
+    //     try {
+    //         const response = await fetch(`http://localhost:5000/api/products/${productId}`);
+    //         const data = await response.json();
+    //         if (data.product) {
+    //             setProductId(data.product);
+    //         }
+    //     } catch (error) {
+    //         console.error("Error fetching product:", error);
+    //     }
+    // };
     const handleStatusUpdate = async (orderId, newStatus) => {
         try {
             const response = await fetch('http://localhost:5000/api/order/status', {

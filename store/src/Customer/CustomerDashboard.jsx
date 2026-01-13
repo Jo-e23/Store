@@ -213,11 +213,11 @@ const CustomerDashboard = () => {
                         </div>
 
                         {/* RIGHT: Cart / Selected Items */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit animate-fade-in">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h2 className="text-xl font-bold mb-6 text-gray-800 border-b pb-2">Selected Items</h2>
 
                             {form.items.length === 0 ? (
-                                <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300 mb-6">
+                                <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-300 mb-6">
                                     <p className="text-gray-400 text-sm italic">Your cart is empty.</p>
                                     <p className="text-gray-400 text-xs mt-1">Add items from the section below.</p>
                                 </div>
@@ -257,6 +257,7 @@ const CustomerDashboard = () => {
                                 Place Order
                             </button>
                         </div>
+                        
                     </div>
                 </form>
 
