@@ -74,7 +74,15 @@ router.get("/user/:email", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-router.get
+// Get all users (Admins)
+router.get("/users", async (req, res) => {
+    try {
+        const users = await Admin.find().select('-password'); // Exclude password if it exists
+        res.json({ users });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 // Update User Profile by Email
 router.put("/user/:email", async (req, res) => {
     try {
@@ -289,6 +297,7 @@ router.get("/orders/:email", async (req, res) => {
 });
 
 // Update Order Status
+// Update Order Status
 router.put("/order/status", async (req, res) => {
     try {
         const { orderId, status } = req.body;
@@ -296,6 +305,19 @@ router.put("/order/status", async (req, res) => {
         const order = await Order.findById(orderId);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
+        }
+
+        // If cancelling, restore stock
+        if (status === 'Cancelled' && order.status !== 'Cancelled') {
+            for (const item of order.items) {
+                // Find product by its custom productId
+                const product = await Product.findOne({ productId: item.productId });
+                if (product) {
+                    const qtyToRestore = item.quantity || 1;
+                    product.quantity += qtyToRestore;
+                    await product.save();
+                }
+            }
         }
 
         order.status = status;
