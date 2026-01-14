@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate ,Link} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaGooglePay } from "react-icons/fa";
 import CustomerSidebar from './CustomerSidebar';
 
@@ -10,7 +10,7 @@ const CustomerProfile = () => {
         phone: '',
         email: ''
     });
-   
+
 
     const [isEditing, setIsEditing] = useState(false);
 
@@ -88,6 +88,10 @@ const CustomerProfile = () => {
     //         alert('Error saving changes');
     //     }
     // }
+
+    const handleLinkUPI = () => {
+
+    }
     const handleSave = async (e) => {
         e.preventDefault();
         try {
@@ -121,7 +125,7 @@ const CustomerProfile = () => {
         switch (activeTab) {
             case 'profile':
                 return (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-xl animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-xl ">
                         <div className="mb-8">
                             <h2 className="text-xl font-bold  text-gray-900">Profile Details</h2>
                         </div>
@@ -175,21 +179,23 @@ const CustomerProfile = () => {
                         </form>
                     </div>
                 );
-            
+
             case 'wallet':
                 return (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl animate-fade-in">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl ">
                         <h2 className="text-xl font-bold text-gray-900 mb-4">My Wallet</h2>
                         <div className="bg-green-50 border border-green-100 rounded-lg p-6">
                             <p className="text-sm text-green-600 font-medium mb-1">Current Balance</p>
                             <h3 className="text-3xl font-bold text-gray-900">
-                               <div className=' text-black'>4000</div>
+                                <div className=' text-black'>4000</div>
                             </h3>
                         </div>
                         <h2 className="text-sm text-black pt-10 font-medium">Link UPI</h2>
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 max-w-2xl animate-fade-in">
-                            <FaGooglePay size={50}/>
-                            {/* <Link to ="text">Link UPI</Link> */}
+                            <FaGooglePay size={50} />
+                            <input type="text" placeholder="Enter UPI ID" />
+                            <button className="bg-green-400 text-white px-4 py-2 rounded-lg hover:bg-green-600 cursor-pointer"
+                                onClick={handleLinkUPI}>Link UPI</button>
                         </div>
 
                     </div>
@@ -202,7 +208,7 @@ const CustomerProfile = () => {
 
     return (
         <CustomerSidebar>
-            <div className="bg-gray-100 grid grid-cols-2 rounded-xl shadow-sm border border-gray-100  max-w-full animate-fade-in">
+            <div className="bg-gray-100 flex flex-col md:flex-row rounded-xl shadow-sm border border-gray-100 max-w-full">
                 <aside className="w-full  md:w-64 bg-transparent p-6 flex flex-col gap-6">
                     <nav className="flex flex-col space-y-2 ">
                         {navItems.map((item) => (
@@ -228,7 +234,7 @@ const CustomerProfile = () => {
 
                                 Wallet
                             </button>
-                            
+
                         </div>
                         <div className="pt-4 mt-auto">
                             <button

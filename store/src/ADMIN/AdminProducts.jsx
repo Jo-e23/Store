@@ -82,7 +82,7 @@ const AdminProducts = () => {
 
     return (
         <Sidebar>
-            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-64 transition-all duration-300">
+            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 transition-all duration-300">
                 <div className="max-w-7xl mx-auto">
 
                     {/* Header Section */}

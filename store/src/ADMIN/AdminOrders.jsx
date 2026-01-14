@@ -77,7 +77,7 @@ const AdminOrders = () => {
     };
 
     const tabs = ['Pending', 'Processing', 'Packed', 'Completed'];//,cancelled
-    
+
     const getNextStatus = (currentStatus) => {
         if (currentStatus === 'Pending') return 'Processing';
         if (currentStatus === 'Processing') return 'Packed';
@@ -95,7 +95,7 @@ const AdminOrders = () => {
 
     return (
         <Sidebar>
-            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 md:ml-64 transition-all duration-300">
+            <div className="flex-1 min-h-screen bg-gray-50 p-6 md:p-12 transition-all duration-300">
                 <div className="max-w-7xl mx-auto">
                     <header className="mb-10">
                         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Orders</h1>

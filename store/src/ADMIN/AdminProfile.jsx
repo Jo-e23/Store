@@ -91,17 +91,17 @@ const AdminProfile = () => {
         }
         setIsEditing(true);
     };
-    
+
     const [orders, setOrders] = useState([]);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-   
+
     const fetchOrder = async () => {
         try {
             setLoading(true);
             const response = await fetch('http://localhost:5000/api/orders');
-            if (!response.ok) 
+            if (!response.ok)
                 throw new Error('Failed to fetch orders');
             const data = await response.json();
             const ordersData = data.orders || [];
@@ -117,7 +117,7 @@ const AdminProfile = () => {
                     : 0;
                 return grandTotal + orderTotal;
             }, 0);
- 
+
             setTotalRevenue(revenue);
 
 
@@ -130,7 +130,7 @@ const AdminProfile = () => {
     useEffect(() => {
         fetchOrder();
     }, []);
-    
+
     const handleShopSave = async (e) => {
         e.preventDefault();
         try {
@@ -327,8 +327,8 @@ const AdminProfile = () => {
     };
 
     return (
-        <Sidebar shopImage={shopDetails.image}>
-            <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans md:ml-64">
+        <Sidebar >
+            <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 font-sans">
                 <aside className="w-full md:w-64 bg-transparent p-6 flex flex-col gap-6">
                     <nav className="flex flex-col space-y-2">
                         {navItems.map((item) => (

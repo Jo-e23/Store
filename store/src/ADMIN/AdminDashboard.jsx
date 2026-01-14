@@ -31,7 +31,7 @@ const AdminDashboard = () => {
         try {
             setLoading(true);
             const response = await fetch('http://localhost:5000/api/orders');
-            if (!response.ok) 
+            if (!response.ok)
                 throw new Error('Failed to fetch orders');
             const data = await response.json();
             const ordersData = data.orders || [];
@@ -48,7 +48,7 @@ const AdminDashboard = () => {
                     : 0;
                 return grandTotal + orderTotal;
             }, 0);
- 
+
             const itemCount = ordersData.reduce((grandTotal, order) => {
                 if (order.status === 'Cancelled') return grandTotal;
 
@@ -78,11 +78,34 @@ const AdminDashboard = () => {
 
     return (
         <Sidebar>
-            <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 font-sans md:ml-64">
-              
+            <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 font-sans">
 
+                <div className="flex-1 p-6">
+                    <main className="flex flex-col">
+                        <h2 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Orders</h3>
+                                <p className="text-2xl font-bold text-gray-900">{totalOrders}</p>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Revenue</h3>
+                                <p className="text-2xl font-bold text-gray-900">₹{totalRevenue.toFixed(2)}</p>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Items Sold</h3>
+                                <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
+                            </div>
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Customers</h3>
+                                <p className="text-2xl font-bold text-gray-900">{totalCustomers - 1 ? totalCustomers - 1 : 0}</p>
+                            </div>
+                        </div>
+                    </main>
+                </div>
 
                 <div className="w-full lg:w-96 bg-white border-l border-gray-200 p-6 overflow-y-auto lg:h-screen lg:sticky lg:top-0">
+
                     <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Orders</h2>
                     <div className="flex flex-col gap-4">
                         {orders.map((order) => (
